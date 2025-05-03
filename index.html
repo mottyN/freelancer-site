@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>האתר של המתכנת</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #dbeafe, #f0f9ff);
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800">
+
+  <!-- סרגל ניווט -->
+  <nav class="bg-blue-700 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <a href="index.html" class="text-xl font-bold hover:text-gray-200">האתר שלי</a>
+        <div class="space-x-6 space-x-reverse hidden md:flex">
+          <a href="index.html" class="hover:underline">בית</a>
+          <a href="yad2-addon.html" class="hover:underline">תוסף יד2</a>
+          <a href="omer-counter.html" class="hover:underline">ספירת העומר</a>
+          <a href="smart-reply.html" class="hover:underline">תגובה חכמה</a>
+          <a href="#contact" class="hover:underline">צור קשר</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- כותרת -->
+  <header class="bg-blue-600 text-white shadow p-8 text-center rounded-b-3xl">
+    <h1 class="text-4xl font-bold">ברוכים הבאים לאתר שלי</h1>
+    <p class="mt-2 text-xl">מתכנת פרילנסר | פיתוח תוספים, אתרים ותוכנות</p>
+  </header>
+
+  <!-- פרויקטים -->
+  <section class="max-w-5xl mx-auto py-12 px-4">
+    <h2 class="text-3xl font-semibold mb-8 text-blue-800 border-b-2 border-blue-300 pb-2">פרויקטים נבחרים</h2>
+    <div class="grid gap-6 md:grid-cols-2">
+      <a href="yad2-addon.html" class="block bg-white p-6 shadow-md hover:shadow-xl rounded-xl transition border-l-4 border-blue-400">
+        <h3 class="text-2xl font-bold text-blue-600">תוסף רכבים ליד2</h3>
+        <p class="mt-2 text-sm">תוסף חכם להצגת מידע נוסף על רכבים באתר יד2.</p>
+      </a>
+      <a href="omer-counter.html" class="block bg-white p-6 shadow-md hover:shadow-xl rounded-xl transition border-l-4 border-green-400">
+        <h3 class="text-2xl font-bold text-green-600">תוסף ספירת העומר</h3>
+        <p class="mt-2 text-sm">תוסף המציג את ספירת העומר בצורה נגישה ונוחה.</p>
+      </a>
+      <a href="smart-reply.html" class="block bg-white p-6 shadow-md hover:shadow-xl rounded-xl transition border-l-4 border-purple-400">
+        <h3 class="text-2xl font-bold text-purple-600">תוסף תגובה חכמה</h3>
+        <p class="mt-2 text-sm">מערכת תגובות חכמה לאתרים, כולל השלמה אוטומטית.</p>
+      </a>
+    </div>
+  </section>
+<!-- מקטע פרסומי -->
+<section class="bg-yellow-100 py-10 px-6 text-center rounded-xl shadow-inner max-w-4xl mx-auto my-10">
+    <h2 class="text-3xl font-bold text-yellow-800 mb-4">מחפשים תוסף מותאם אישית?</h2>
+    <p class="text-lg text-yellow-900 mb-4">
+      צריכים מערכת CRM מותאמת? רוצים לחסוך זמן עם אוטומציות מותאמות אישית?
+    </p>
+    <p class="text-lg font-semibold">כתבו לי במייל:  
+      <a href="mailto:your-email@example.com" class="text-blue-700 underline">your-email@example.com</a>
+    </p>
+  </section>
+  
+  <!-- צור קשר -->
+  <section id="contact" class="bg-white py-12 shadow-inner">
+    <div class="max-w-2xl mx-auto px-4">
+      <h2 class="text-2xl font-semibold mb-4 text-blue-800 border-b pb-2">צור קשר</h2>
+      <form class="grid gap-4">
+        <input type="text" placeholder="שם מלא" class="p-3 border border-blue-300 rounded" />
+        <input type="email" placeholder="אימייל" class="p-3 border border-blue-300 rounded" />
+        <textarea placeholder="הודעה" class="p-3 border border-blue-300 rounded h-32"></textarea>
+        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+          שלח הודעה
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- תחתית -->
+  <footer class="text-center py-6 text-sm text-gray-600">
+    © 2025 כל הזכויות שמורות | האתר נבנה באהבה ובקוד פתוח
+  </footer>
+
+</body>
+</html>
