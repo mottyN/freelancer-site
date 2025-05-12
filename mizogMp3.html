@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>תוסף תגובה חכמה</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    
-    main {
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>תוסף תגובה חכמה</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        main {
             max-width: 800px;
             margin: 30px auto;
             padding: 20px;
@@ -88,169 +88,173 @@
             margin-top: 10px;
             font-weight: bold;
         }
-  </style>
+    </style>
 </head>
+
 <body class="bg-gray-50 font-sans text-gray-800">
 
-  <!-- סרגל ניווט -->
-  <nav class="bg-blue-700 text-white shadow-md">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="flex justify-between items-center py-4">
-        <a href="index.html" class="text-xl font-bold hover:text-gray-200"> תוספון</a>
-        <div class="space-x-6 space-x-reverse hidden md:flex">
-          <a href="index.html" class="hover:underline">בית</a>
-          <a href="yad2-addon.html" class="hover:underline">תוסף יד2</a>
-          <a href="omer-counter.html" class="hover:underline">ספירת העומר</a>
-          <a href="smart-reply.html" class="hover:underline">תגובה חכמה</a>
-          <a href="mizogMp3.html" class="hover:underline"> מיזוג קבצי MP3</a>
-          <a href="index.html#contact" class="hover:underline">צור קשר</a>
+    <!-- סרגל ניווט -->
+    <nav class="bg-blue-700 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="index.html" class="text-xl font-bold hover:text-gray-200"> תוספון</a>
+                <div class="space-x-6 space-x-reverse hidden md:flex">
+                    <a href="index.html" class="hover:underline">בית</a>
+                    <a href="yad2-addon.html" class="hover:underline">תוסף יד2</a>
+                    <a href="omer-counter.html" class="hover:underline">ספירת העומר</a>
+                    <a href="smart-reply.html" class="hover:underline">תגובה חכמה</a>
+                    <a href="mizogMp3.html" class="hover:underline"> מיזוג קבצי MP3</a>
+                    <a href="wateAi.html" class="hover:underline"> מה זה AI</a>
+                    <a href="index.html#contact" class="hover:underline">צור קשר</a>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </nav>
+    </nav>
 
-  <!-- כותרת -->
-  <header class="bg-blue-100 text-blue-900 text-center py-12 shadow-inner">
-    <h1 class="text-4xl font-bold mb-4">מיזוג שני קבצי MP3</h1>
-    <p class="text-lg max-w-2xl mx-auto">
-        בחר שני קבצים בנפרד ואז לחץ "מזג קבצים"
-    </p>
-  </header>
+    <!-- כותרת -->
+    <header class="bg-blue-100 text-blue-900 text-center py-12 shadow-inner">
+        <h1 class="text-4xl font-bold mb-4">מיזוג שני קבצי MP3</h1>
+        <p class="text-lg max-w-2xl mx-auto">
+            בחר שני קבצים בנפרד ואז לחץ "מזג קבצים"
+        </p>
+    </header>
 
-  <main>
-    <label>בחר קובץ ראשון:</label>
-    <input type="file" id="file1" accept=".mp3" onchange="updateStatus('file1')">
-    <div id="file1Status">לא הועלה</div>
+    <main>
+        <label>בחר קובץ ראשון:</label>
+        <input type="file" id="file1" accept=".mp3" onchange="updateStatus('file1')">
+        <div id="file1Status">לא הועלה</div>
 
-    <label>בחר קובץ שני:</label>
-    <input type="file" id="file2" accept=".mp3" onchange="updateStatus('file2')">
-    <div id="file2Status">לא הועלה</div>
+        <label>בחר קובץ שני:</label>
+        <input type="file" id="file2" accept=".mp3" onchange="updateStatus('file2')">
+        <div id="file2Status">לא הועלה</div>
 
-    <button onclick="mergeToMP3()">מזג קבצים</button>
-    <button onclick="pageRelod()">רענן</button>
+        <button onclick="mergeToMP3()">מזג קבצים</button>
+        <button onclick="pageRelod()">רענן</button>
 
-    <div id="progress">
-        <div id="bar"></div>
-    </div>
-    <div id="status">בהמתנה...</div>
+        <div id="progress">
+            <div id="bar"></div>
+        </div>
+        <div id="status">בהמתנה...</div>
 
-    <canvas id="waveform"></canvas>
-    <a id="downloadLink" download="merged.mp3">⬇ הורד קובץ ממוזג</a>
-</main>
+        <canvas id="waveform"></canvas>
+        <a id="downloadLink" download="merged.mp3">⬇ הורד קובץ ממוזג</a>
+    </main>
 
-<script>
-    function updateStatus(fileId) {
-        const file = document.getElementById(fileId).files[0];
-        document.getElementById(fileId + 'Status').textContent = file ? '✅ נטען: ' + file.name : '❌ לא הועלה';
-    }
-
-    async function mergeToMP3() {
-        const file1 = document.getElementById('file1').files[0];
-        const file2 = document.getElementById('file2').files[0];
-        const status = document.getElementById('status');
-        const bar = document.getElementById('bar');
-        const canvas = document.getElementById('waveform');
-
-        if (!file1 || !file2) {
-            alert("אנא בחר שני קבצים");
-            return;
+    <script>
+        function updateStatus(fileId) {
+            const file = document.getElementById(fileId).files[0];
+            document.getElementById(fileId + 'Status').textContent = file ? '✅ נטען: ' + file.name : '❌ לא הועלה';
         }
 
-        status.textContent = "🔄 טוען ומעבד קבצים...";
-        bar.style.width = '0%';
+        async function mergeToMP3() {
+            const file1 = document.getElementById('file1').files[0];
+            const file2 = document.getElementById('file2').files[0];
+            const status = document.getElementById('status');
+            const bar = document.getElementById('bar');
+            const canvas = document.getElementById('waveform');
 
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const buffers = [];
-
-        for (const file of [file1, file2]) {
-            const arrayBuffer = await file.arrayBuffer();
-            const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-            buffers.push(audioBuffer);
-        }
-
-        const totalLength = buffers.reduce((sum, b) => sum + b.length, 0);
-        const sampleRate = ctx.sampleRate;
-        const output = ctx.createBuffer(1, totalLength, sampleRate);
-
-        let offset = 0;
-        for (const buffer of buffers) {
-            output.getChannelData(0).set(buffer.getChannelData(0), offset);
-            offset += buffer.length;
-        }
-
-        drawWaveform(output.getChannelData(0), canvas);
-
-        const mp3Encoder = new lamejs.Mp3Encoder(1, sampleRate, 128);
-        const samples = output.getChannelData(0);
-        const blockSize = 1152;
-        let mp3Data = [];
-
-        for (let i = 0; i < samples.length; i += blockSize) {
-            const sampleChunk = samples.subarray(i, i + blockSize);
-            const int16Samples = new Int16Array(sampleChunk.length);
-            for (let j = 0; j < sampleChunk.length; j++) {
-                int16Samples[j] = sampleChunk[j] * 32767;
+            if (!file1 || !file2) {
+                alert("אנא בחר שני קבצים");
+                return;
             }
-            const mp3buf = mp3Encoder.encodeBuffer(int16Samples);
-            if (mp3buf.length > 0) mp3Data.push(new Uint8Array(mp3buf));
-            bar.style.width = `${(i / samples.length * 100).toFixed(1)}%`;
-            await new Promise(r => setTimeout(r, 1)); // לא לחסום את ה־UI
-        }
 
-        const mp3End = mp3Encoder.flush();
-        if (mp3End.length > 0) mp3Data.push(new Uint8Array(mp3End));
+            status.textContent = "🔄 טוען ומעבד קבצים...";
+            bar.style.width = '0%';
 
-        const blob = new Blob(mp3Data, { type: 'audio/mp3' });
-        const link = document.getElementById('downloadLink');
-        link.href = URL.createObjectURL(blob);
-        link.style.display = 'inline';
-        bar.style.width = `100%`;
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const buffers = [];
 
-        status.textContent = "✅ הסתיים בהצלחה! ניתן להוריד את הקובץ.";
-    }
-
-    function drawWaveform(data, canvas) {
-        const ctx = canvas.getContext("2d");
-        const width = canvas.width = canvas.offsetWidth;
-        const height = canvas.height = 100;
-        ctx.clearRect(0, 0, width, height);
-        const step = Math.floor(data.length / width);
-        const amp = height / 2;
-        ctx.beginPath();
-        ctx.moveTo(0, amp);
-        for (let i = 0; i < width; i++) {
-            let min = 1.0, max = -1.0;
-            for (let j = 0; j < step; j++) {
-                const datum = data[(i * step) + j];
-                if (datum < min) min = datum;
-                if (datum > max) max = datum;
+            for (const file of [file1, file2]) {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+                buffers.push(audioBuffer);
             }
-            ctx.lineTo(i, (1 + min) * amp);
-            ctx.lineTo(i, (1 + max) * amp);
+
+            const totalLength = buffers.reduce((sum, b) => sum + b.length, 0);
+            const sampleRate = ctx.sampleRate;
+            const output = ctx.createBuffer(1, totalLength, sampleRate);
+
+            let offset = 0;
+            for (const buffer of buffers) {
+                output.getChannelData(0).set(buffer.getChannelData(0), offset);
+                offset += buffer.length;
+            }
+
+            drawWaveform(output.getChannelData(0), canvas);
+
+            const mp3Encoder = new lamejs.Mp3Encoder(1, sampleRate, 128);
+            const samples = output.getChannelData(0);
+            const blockSize = 1152;
+            let mp3Data = [];
+
+            for (let i = 0; i < samples.length; i += blockSize) {
+                const sampleChunk = samples.subarray(i, i + blockSize);
+                const int16Samples = new Int16Array(sampleChunk.length);
+                for (let j = 0; j < sampleChunk.length; j++) {
+                    int16Samples[j] = sampleChunk[j] * 32767;
+                }
+                const mp3buf = mp3Encoder.encodeBuffer(int16Samples);
+                if (mp3buf.length > 0) mp3Data.push(new Uint8Array(mp3buf));
+                bar.style.width = `${(i / samples.length * 100).toFixed(1)}%`;
+                await new Promise(r => setTimeout(r, 1)); // לא לחסום את ה־UI
+            }
+
+            const mp3End = mp3Encoder.flush();
+            if (mp3End.length > 0) mp3Data.push(new Uint8Array(mp3End));
+
+            const blob = new Blob(mp3Data, { type: 'audio/mp3' });
+            const link = document.getElementById('downloadLink');
+            link.href = URL.createObjectURL(blob);
+            link.style.display = 'inline';
+            bar.style.width = `100%`;
+
+            status.textContent = "✅ הסתיים בהצלחה! ניתן להוריד את הקובץ.";
         }
-        ctx.strokeStyle = "#6a11cb";
-        ctx.lineWidth = 1;
-        ctx.stroke();
-    }
-    function pageRelod() {
-        location.reload();
-    }
-</script>
+
+        function drawWaveform(data, canvas) {
+            const ctx = canvas.getContext("2d");
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = 100;
+            ctx.clearRect(0, 0, width, height);
+            const step = Math.floor(data.length / width);
+            const amp = height / 2;
+            ctx.beginPath();
+            ctx.moveTo(0, amp);
+            for (let i = 0; i < width; i++) {
+                let min = 1.0, max = -1.0;
+                for (let j = 0; j < step; j++) {
+                    const datum = data[(i * step) + j];
+                    if (datum < min) min = datum;
+                    if (datum > max) max = datum;
+                }
+                ctx.lineTo(i, (1 + min) * amp);
+                ctx.lineTo(i, (1 + max) * amp);
+            }
+            ctx.strokeStyle = "#6a11cb";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        function pageRelod() {
+            location.reload();
+        }
+    </script>
 
 
-  <!-- הנעה לפעולה -->
-  <section class="bg-yellow-100 py-10 px-6 text-center rounded-xl shadow-inner max-w-4xl mx-auto my-10">
-    <h2 class="text-2xl font-bold text-yellow-800 mb-4">רוצים לפתח אתר משלכם?</h2>
-    <p class="text-lg mb-4">דברו איתי על פיתוח אתרים בהתאמה אישית</p>
-    <a href="mailto:P0533105452@gmail.com" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 text-lg font-semibold">
-      צרו קשר
-    </a>
-  </section>
+    <!-- הנעה לפעולה -->
+    <section class="bg-yellow-100 py-10 px-6 text-center rounded-xl shadow-inner max-w-4xl mx-auto my-10">
+        <h2 class="text-2xl font-bold text-yellow-800 mb-4">רוצים לפתח אתר משלכם?</h2>
+        <p class="text-lg mb-4">דברו איתי על פיתוח אתרים בהתאמה אישית</p>
+        <a href="mailto:P0533105452@gmail.com"
+            class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 text-lg font-semibold">
+            צרו קשר
+        </a>
+    </section>
 
-  <!-- תחתית -->
-  <footer class="text-center py-6 text-sm text-gray-600">
-    © 2025 כל הזכויות שמורות 
-  </footer>
+    <!-- תחתית -->
+    <footer class="text-center py-6 text-sm text-gray-600">
+        © 2025 כל הזכויות שמורות
+    </footer>
 
 </body>
+
 </html>
