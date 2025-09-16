@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>מדמה יצירת קישורים מקוצרים + מעקב לחיצות</title>
+  <style>
+    :root{
+      --bg:#0f172a; /* slate-900 */
+      --card:#111827; /* gray-900 */
+      --muted:#94a3b8; /* slate-400 */
+      --text:#e5e7eb; /* gray-200 */
+      --brand:#22c55e; /* green-500 */
+      --brand-2:#16a34a; /* green-600 */
+      --danger:#ef4444; /* red-500 */
+      --shadow:0 10px 25px rgba(0,0,0,.4);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1220,#0f172a);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif;min-height:100dvh}
+    a{color:#7dd3fc}
+    .container{max-width:1000px;margin-inline:auto;padding:32px}
+    .hero{display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center;margin-top:24px;margin-bottom:28px}
+    .title{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:.3px}
+    .subtitle{color:var(--muted)}
+    .card{background:linear-gradient(180deg,#0b1220,#0b1220 60%,#0f172a);border:1px solid #1f2937;border-radius:20px;box-shadow:var(--shadow)}
+    .main-card{padding:28px;display:flex;flex-direction:column;gap:22px}
+    .primary-btn{appearance:none;border:none;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:white;padding:18px 26px;border-radius:16px;font-weight:800;font-size:20px;cursor:pointer;transform:translateY(0);transition:transform .05s ease,filter .2s ease;box-shadow:0 8px 24px rgba(34,197,94,.3)}
+    .primary-btn:active{transform:translateY(1px)}
+    .list{display:grid;gap:12px}
+    .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b1220;border:1px solid #1f2937;padding:16px;border-radius:14px}
+    .row-title{font-weight:700}
+    .row-sub{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .row-actions{display:flex;gap:10px}
+    .btn{appearance:none;border:1px solid #1f2937;background:#0b1320;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}
+    .btn:hover{filter:brightness(1.1)}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#111827;border:1px solid #1f2937;color:#d1fae5;padding:6px 10px;border-radius:999px;font-size:12px}
+    .empty{opacity:.8;color:var(--muted);text-align:center;padding:26px}
+    .grid-head{display:flex;justify-content:space-between;align-items:center}
+    .search{display:flex;gap:10px}
+    .input{width:320px;max-width:60vw;background:#0b1220;border:1px solid #1f2937;color:var(--text);padding:12px 14px;border-radius:12px}
+    .copy{font-size:12px}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
+    .modal{width:min(560px,92vw);background:#0b1220;border:1px solid #1f2937;border-radius:18px;box-shadow:var(--shadow);padding:22px}
+    .modal h3{margin:0 0 14px 0}
+    .modal .field{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+    .modal input{background:#0b1220;border:1px solid #1f2937;color:var(--text);padding:12px 14px;border-radius:12px}
+    .modal .actions{display:flex;gap:10px;justify-content:flex-start;margin-top:14px}
+
+    /* Detail page */
+    .detail{max-width:760px;margin-inline:auto}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .muted{color:var(--muted)}
+    .table{width:100%;border-collapse:collapse;margin-top:12px}
+    .table th,.table td{border-bottom:1px solid #1f2937;padding:10px 6px;text-align:start}
+    .danger{color:#fecaca}
+    .link-box{background:#0b1220;border:1px dashed #334155;border-radius:12px;padding:12px}
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- Modal for new link -->
+  <div id="newLinkModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="newLinkTitle">
+    <div class="modal">
+      <h3 id="newLinkTitle">צור קישור חדש</h3>
+      <p class="muted">מלא את הפרטים ולאחר מכן לחץ על <b>"צור לי קישור"</b>.</p>
+      <div class="field">
+        <label>שם לקישור</label>
+        <input id="fieldName" type="text" placeholder="לדוגמה: טופס הרשמה" />
+      </div>
+      <div class="field">
+        <label>כתובת יעד (URL)</label>
+        <input id="fieldUrl" type="url" placeholder="https://example.com" />
+      </div>
+      <div class="actions">
+        <button class="primary-btn" id="btnCreate">צור לי קישור</button>
+        <button class="btn" id="btnClose">בטל</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ===== נתוני האפליקציה (LocalStorage) =====
+  const DB_KEY = 'link_shortener_db_v1';
+  function loadDB(){
+    try{ return JSON.parse(localStorage.getItem(DB_KEY)) || {links:{}}; }catch{ return {links:{}} }
+  }
+  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
+  function uid(){ return Math.random().toString(36).slice(2,9); }
+
+  function shortUrlFor(id){
+    const base = location.origin + location.pathname;
+    return `${base}#/l/${id}`;
+  }
+
+  // ===== Router (hash-based) =====
+  function route(){
+    const hash = location.hash || '#/';
+    const [_, path, id] = hash.split('/');
+    if(path === '') return renderHome();
+    if(path === 'l' && id) return handleRedirect(id);
+    if(path === 'details' && id) return renderDetails(id);
+    // default
+    return renderHome();
+  }
+
+  // ===== Views =====
+  function renderHome(){
+    const db = loadDB();
+    const links = Object.values(db.links).sort((a,b)=> b.createdAt - a.createdAt);
+    const el = document.getElementById('app');
+    el.innerHTML = `
+      <div class="container">
+        <div class="hero">
+          <div class="title">מדמה יצירת קישורי קיצור ומעקב לחיצות</div>
+          <div class="subtitle">לחץ על הכפתור כדי ליצור קישור חדש. מתחתיו תופיע רשימת כל הקישורים.</div>
+          <button class="primary-btn" id="openModal">צור קישור</button>
+        </div>
+        <div class="card main-card">
+          <div class="grid-head">
+            <div>
+              <strong>כל הקישורים</strong>
+              <span class="muted">(${links.length})</span>
+            </div>
+            <div class="search">
+              <input id="searchInput" class="input" placeholder="חיפוש לפי שם או כתובת..." />
+              <button class="btn" id="refreshBtn">רענן</button>
+            </div>
+          </div>
+          <div id="list" class="list">${links.length? links.map(rowTpl).join(''): `<div class='empty'>אין עדיין קישורים. לחץ על "צור קישור" כדי להתחיל.</div>`}</div>
+        </div>
+      </div>`;
+
+    // events
+    document.getElementById('openModal').onclick = openModal;
+    document.getElementById('refreshBtn').onclick = ()=>renderHome();
+    document.getElementById('searchInput').oninput = (e)=> filterList(e.target.value);
+
+    function filterList(q){
+      q = (q||'').toLowerCase();
+      const container = document.getElementById('list');
+      if(!q){ container.querySelectorAll('.row').forEach(r=> r.style.display='grid'); return; }
+      container.querySelectorAll('.row').forEach(r=>{
+        const txt = (r.dataset.search||'').toLowerCase();
+        r.style.display = txt.includes(q)? 'grid':'none';
+      });
+    }
+
+    function rowTpl(link){
+      const su = shortUrlFor(link.id);
+      const search = `${link.name} ${link.url} ${su}`;
+      return `
+        <div class="row" data-search="${escapeHtml(search)}">
+          <div>
+            <div class="row-title">${escapeHtml(link.name)}</div>
+            <div class="row-sub mono">${escapeHtml(su)}</div>
+          </div>
+          <div class="row-actions">
+            <span class="badge" title="מספר לחיצות">${link.clicks?.length||0} לחיצות</span>
+            <button class="btn copy" data-id="${link.id}" data-url="${su}">העתק קיצור</button>
+            <button class="btn" onclick="window.open('#/details/${link.id}','_blank')">פתח דף פרטים</button>
+            <button class="btn" onclick="deleteLink('${link.id}')" title="מחק">🗑️</button>
+          </div>
+        </div>`;
+    }
+
+    // copy buttons
+    el.querySelectorAll('.copy').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        try{ await navigator.clipboard.writeText(btn.dataset.url); toast('הקיצור הועתק'); }catch{ toast('לא הצלחתי להעתיק'); }
+      });
+    });
+  }
+
+  function renderDetails(id){
+    const db = loadDB();
+    const link = db.links[id];
+    const el = document.getElementById('app');
+    if(!link){
+      el.innerHTML = `<div class='container detail'><h2>לא נמצא</h2><p class='muted'>הקישור המבוקש אינו קיים.</p><p><a href="#/">חזרה לדף הראשי</a></p></div>`;
+      return;
+    }
+    const su = shortUrlFor(link.id);
+    el.innerHTML = `
+      <div class="container detail">
+        <div class="card" style="padding:24px">
+          <h1 style="margin-top:0">פרטי קישור</h1>
+          <div class="link-box">
+            <div><b>שם:</b> ${escapeHtml(link.name)}</div>
+            <div class="mono"><b>קיצור:</b> <a href="${su}" target="_blank" rel="noopener">${escapeHtml(su)}</a></div>
+            <div class="mono"><b>יעד:</b> <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.url)}</a></div>
+            <div class="muted"><b>נוצר:</b> ${new Intl.DateTimeFormat('he-IL',{dateStyle:'medium', timeStyle:'short'}).format(new Date(link.createdAt))}</div>
+          </div>
+          <div style="margin-top:14px">
+            <span class="badge">סה"כ לחיצות: ${link.clicks?.length||0}</span>
+          </div>
+          <h3 style="margin:18px 0 8px">היסטוריית לחיצות</h3>
+          ${link.clicks?.length? clicksTable(link.clicks): `<div class='muted'>אין עדיין לחיצות.</div>`}
+          <div style="margin-top:18px">
+            <button class="btn" onclick="window.location.hash='#/'">חזרה לרשימה</button>
+          </div>
+        </div>
+      </div>`;
+
+    function clicksTable(arr){
+      const rows = arr.slice().reverse().map((t,i)=>{
+        const d = new Date(t);
+        return `<tr><td>${i+1}</td><td>${new Intl.DateTimeFormat('he-IL',{dateStyle:'medium', timeStyle:'short'}).format(d)}</td></tr>`
+      }).join('');
+      return `<table class="table"><thead><tr><th>#</th><th>זמן לחיצה</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+  }
+
+  async function handleRedirect(id){
+    const db = loadDB();
+    const link = db.links[id];
+    const el = document.getElementById('app');
+    if(!link){
+      el.innerHTML = `<div class='container'><div class='card' style='padding:24px'><h2>קישור מקוצר לא נמצא</h2><p class='muted'>ייתכן שהקישור נמחק.</p><p><a href="#/">לדף הראשי</a></p></div></div>`;
+      return;
+    }
+    // עדכון מיידי של הלחיצה
+    link.clicks = link.clicks || [];
+    link.clicks.push(Date.now());
+    saveDB(db);
+
+    el.innerHTML = `<div class='container'><div class='card' style='padding:24px'><h2>מעביר ליעד…</h2><p class='muted mono'>${escapeHtml(link.url)}</p><p class='muted'>אם לא הועברת אוטומטית, <a href='${escapeHtml(link.url)}'>לחץ כאן</a>.</p></div></div>`;
+
+    // השהיה קטנה כדי שהמסך ייראה לפני הניווט
+    setTimeout(()=>{ location.replace(link.url); }, 350);
+  }
+
+  // ===== יצירה/מחיקה =====
+  function openModal(){
+    const bd = document.getElementById('newLinkModal');
+    const name = document.getElementById('fieldName');
+    const url = document.getElementById('fieldUrl');
+    bd.style.display='flex';
+    name.value=''; url.value='';
+    setTimeout(()=> name.focus(), 50);
+  }
+  function closeModal(){ document.getElementById('newLinkModal').style.display='none'; }
+
+  function deleteLink(id){
+    if(!confirm('למחוק את הקישור?')) return;
+    const db = loadDB();
+    delete db.links[id];
+    saveDB(db);
+    toast('נמחק');
+    renderHome();
+  }
+
+  function createLink(){
+    const name = document.getElementById('fieldName').value.trim();
+    const url  = document.getElementById('fieldUrl').value.trim();
+    if(!name) return toast('נא למלא שם לקישור');
+    if(!/^https?:\/\//i.test(url)) return toast('נא להזין כתובת יעד חוקית המתחילה ב- http:// או https://');
+    const db = loadDB();
+    const id = uid();
+    db.links[id] = { id, name, url, createdAt: Date.now(), clicks: [] };
+    saveDB(db);
+    closeModal();
+    renderHome();
+    toast('קישור נוצר והתווסף לרשימה');
+  }
+
+  // ===== עזר =====
+  function escapeHtml(str){
+    return String(str).replace(/[&<>\"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s]));
+  }
+
+  function toast(msg){
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;inset-inline:0;top:14px;margin:auto;background:#0b1220;border:1px solid #1f2937;color:#e5e7eb;padding:10px 16px;border-radius:999px;width:max-content;box-shadow:var(--shadow);z-index:99';
+    document.body.appendChild(t);
+    setTimeout(()=> t.remove(), 1800);
+  }
+
+  // ===== אירועי מודל =====
+  document.getElementById('btnCreate').onclick = createLink;
+  document.getElementById('btnClose').onclick = closeModal;
+  document.getElementById('newLinkModal').addEventListener('click', (e)=>{
+    if(e.target.id==='newLinkModal') closeModal();
+  });
+
+  // ===== הפעלה =====
+  window.addEventListener('hashchange', route);
+  route();
+  </script>
+</body>
+</html>
